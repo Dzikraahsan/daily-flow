@@ -1,84 +1,141 @@
 export interface Activity {
   id: number;
   name: string;
+  completed: boolean;
 }
 
-export interface DailyProgress {
-  [date: string]: {
-    [activityId: string]: boolean;
-  };
+export interface DailyActivities {
+  [date: string]: Activity[];
 }
 
 export interface AppData {
-  activities: Activity[];
-  dailyProgress: DailyProgress;
+  dailyActivities: DailyActivities;
 }
 
 const STORAGE_KEY = "daily-checklist-data";
 
 const defaultData: AppData = {
-  activities: [],
-  dailyProgress: {},
+  dailyActivities: {},
 };
 
 export function loadData(): AppData {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return { ...defaultData };
-    return JSON.parse(raw) as AppData;
+    const parsed = JSON.parse(raw);
+    // Migration from old format
+    if (parsed.activities && parsed.dailyProgress) {
+      return migrateOldData(parsed);
+    }
+    return parsed as AppData;
   } catch {
     return { ...defaultData };
   }
+}
+
+function migrateOldData(old: { activities: { id: number; name: string }[]; dailyProgress: { [date: string]: { [id: string]: boolean } } }): AppData {
+  const data: AppData = { dailyActivities: {} };
+  const dates = Object.keys(old.dailyProgress);
+  for (const date of dates) {
+    data.dailyActivities[date] = old.activities.map(a => ({
+      id: a.id,
+      name: a.name,
+      completed: !!old.dailyProgress[date]?.[String(a.id)],
+    }));
+  }
+  saveData(data);
+  return data;
 }
 
 export function saveData(data: AppData): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
-export function addActivity(name: string): AppData {
-  const data = loadData();
-  const id = Date.now();
-  data.activities.push({ id, name });
-  saveData(data);
-  return data;
+export function formatDate(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
 }
 
-export function deleteActivity(id: number): AppData {
-  const data = loadData();
-  data.activities = data.activities.filter((a) => a.id !== id);
-  // Clean up progress entries
-  for (const date in data.dailyProgress) {
-    delete data.dailyProgress[date][String(id)];
+/**
+ * Find the closest previous date that has activity data.
+ */
+function getPreviousAvailableDate(data: AppData, date: string): string | null {
+  const dates = Object.keys(data.dailyActivities)
+    .filter(d => d < date && data.dailyActivities[d].length > 0)
+    .sort();
+  return dates.length > 0 ? dates[dates.length - 1] : null;
+}
+
+/**
+ * Load activities for a given date. If none exist, inherit from the closest previous day.
+ * This also persists the inherited snapshot.
+ */
+export function loadActivitiesForDate(data: AppData, date: string): AppData {
+  if (data.dailyActivities[date]) return data;
+  const prevDate = getPreviousAvailableDate(data, date);
+  if (prevDate) {
+    data.dailyActivities[date] = data.dailyActivities[prevDate].map(a => ({
+      ...a,
+      completed: false,
+    }));
+  } else {
+    data.dailyActivities[date] = [];
   }
   saveData(data);
-  return data;
+  return { ...data };
 }
 
-export function editActivity(id: number, newName: string): AppData {
+export function getActivitiesForDate(data: AppData, date: string): Activity[] {
+  return data.dailyActivities[date] || [];
+}
+
+export function addActivity(date: string, name: string): AppData {
   const data = loadData();
-  const activity = data.activities.find((a) => a.id === id);
-  if (activity) activity.name = newName;
+  loadActivitiesForDate(data, date);
+  const id = Date.now();
+  data.dailyActivities[date].push({ id, name, completed: false });
   saveData(data);
-  return data;
+  return { ...data };
+}
+
+export function deleteActivity(date: string, id: number): AppData {
+  const data = loadData();
+  if (data.dailyActivities[date]) {
+    data.dailyActivities[date] = data.dailyActivities[date].filter(a => a.id !== id);
+  }
+  saveData(data);
+  return { ...data };
+}
+
+export function editActivity(date: string, id: number, newName: string): AppData {
+  const data = loadData();
+  const activities = data.dailyActivities[date];
+  if (activities) {
+    const activity = activities.find(a => a.id === id);
+    if (activity) activity.name = newName;
+  }
+  saveData(data);
+  return { ...data };
 }
 
 export function toggleActivityStatus(date: string, activityId: number): AppData {
   const data = loadData();
-  if (!data.dailyProgress[date]) {
-    data.dailyProgress[date] = {};
+  const activities = data.dailyActivities[date];
+  if (activities) {
+    const activity = activities.find(a => a.id === activityId);
+    if (activity) activity.completed = !activity.completed;
   }
-  const key = String(activityId);
-  data.dailyProgress[date][key] = !data.dailyProgress[date][key];
   saveData(data);
-  return data;
+  return { ...data };
 }
 
 export function calculateDailyProgress(data: AppData, date: string): number {
-  const total = data.activities.length;
-  if (total === 0) return 0;
-  const dayData = data.dailyProgress[date] || {};
-  const completed = data.activities.filter((a) => dayData[String(a.id)]).length;
-  return Math.round((completed / total) * 100);
+  const activities = data.dailyActivities[date];
+  if (!activities || activities.length === 0) return 0;
+  const completed = activities.filter(a => a.completed).length;
+  return Math.round((completed / activities.length) * 100);
 }
 
 export function getLast10DaysProgress(data: AppData, selectedDate: string): { date: string; progress: number }[] {
@@ -91,11 +148,4 @@ export function getLast10DaysProgress(data: AppData, selectedDate: string): { da
     result.push({ date: dateStr, progress: calculateDailyProgress(data, dateStr) });
   }
   return result;
-}
-
-export function formatDate(d: Date): string {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
 }

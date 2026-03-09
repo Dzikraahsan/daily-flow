@@ -1,23 +1,20 @@
 import { useState } from "react";
 import { Check, Pencil, Trash2, X, Save, ListChecks } from "lucide-react";
-import type { Activity, DailyProgress } from "@/utils/storage";
+import type { Activity } from "@/utils/storage";
 
 interface Props {
   activities: Activity[];
-  dailyProgress: DailyProgress;
   selectedDate: string;
   onToggle: (activityId: number) => void;
   onEdit: (id: number, name: string) => void;
   onDelete: (id: number) => void;
 }
 
-export default function Checklist({ activities, dailyProgress, selectedDate, onToggle, onEdit, onDelete }: Props) {
+export default function Checklist({ activities, selectedDate, onToggle, onEdit, onDelete }: Props) {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editName, setEditName] = useState("");
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [removedIds, setRemovedIds] = useState<Set<number>>(new Set());
-
-  const dayData = dailyProgress[selectedDate] || {};
 
   const startEdit = (a: Activity) => {
     setEditingId(a.id);
@@ -49,6 +46,7 @@ export default function Checklist({ activities, dailyProgress, selectedDate, onT
       <div className="flex items-center gap-2 mb-4">
         <ListChecks className="w-5 h-5 text-primary" />
         <h2 className="text-lg font-semibold text-card-foreground">Activity Checklist</h2>
+        <span className="ml-auto text-xs text-muted-foreground">{selectedDate}</span>
       </div>
 
       {activities.length === 0 ? (
@@ -60,7 +58,6 @@ export default function Checklist({ activities, dailyProgress, selectedDate, onT
       ) : (
         <div className="max-h-[300px] overflow-y-auto scrollbar-thin space-y-2 pr-1">
           {activities.map((a) => {
-            const checked = !!dayData[String(a.id)];
             const isRemoving = removedIds.has(a.id);
             return (
               <div
@@ -71,9 +68,9 @@ export default function Checklist({ activities, dailyProgress, selectedDate, onT
                 <button
                   onClick={() => onToggle(a.id)}
                   className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-300 flex-shrink-0
-                    ${checked ? "bg-primary border-primary" : "border-muted-foreground/40 hover:border-primary"}`}
+                    ${a.completed ? "bg-primary border-primary" : "border-muted-foreground/40 hover:border-primary"}`}
                 >
-                  {checked && <Check className="w-3 h-3 text-primary-foreground" />}
+                  {a.completed && <Check className="w-3 h-3 text-primary-foreground" />}
                 </button>
 
                 {editingId === a.id ? (
@@ -94,7 +91,7 @@ export default function Checklist({ activities, dailyProgress, selectedDate, onT
                   </div>
                 ) : (
                   <>
-                    <span className={`flex-1 text-sm transition-all duration-300 ${checked ? "line-through text-muted-foreground" : "text-card-foreground"}`}>
+                    <span className={`flex-1 text-sm transition-all duration-300 ${a.completed ? "line-through text-muted-foreground" : "text-card-foreground"}`}>
                       {a.name}
                     </span>
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
