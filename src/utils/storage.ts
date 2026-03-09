@@ -66,25 +66,14 @@ export function formatDate(d: Date): string {
 }
 
 /**
- * Find the closest previous date that has activity data.
- */
-function getPreviousAvailableDate(data: AppData, date: string): string | null {
-  const dates = Object.keys(data.dailyActivities)
-    .filter(d => d < date && data.dailyActivities[d].length > 0)
-    .sort();
-  return dates.length > 0 ? dates[dates.length - 1] : null;
-}
-
-/**
- * Load activities for a given date. If none exist, inherit from the closest previous day.
- * This also persists the inherited snapshot.
+ * Load activities for a given date. If none exist, initialize from master template.
  */
 export function loadActivitiesForDate(data: AppData, date: string): AppData {
   if (data.dailyActivities[date]) return data;
-  const prevDate = getPreviousAvailableDate(data, date);
-  if (prevDate) {
-    data.dailyActivities[date] = data.dailyActivities[prevDate].map(a => ({
-      ...a,
+  if (data.masterActivities.length > 0) {
+    data.dailyActivities[date] = data.masterActivities.map(a => ({
+      id: a.id,
+      name: a.name,
       completed: false,
     }));
   } else {
