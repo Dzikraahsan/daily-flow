@@ -41,7 +41,7 @@ export function loadData(): AppData {
 }
 
 function migrateOldData(old: { activities: { id: number; name: string }[]; dailyProgress: { [date: string]: { [id: string]: boolean } } }): AppData {
-  const data: AppData = { dailyActivities: {} };
+  const data: AppData = { masterActivities: old.activities.map(a => ({ id: a.id, name: a.name })), dailyActivities: {} };
   const dates = Object.keys(old.dailyProgress);
   for (const date of dates) {
     data.dailyActivities[date] = old.activities.map(a => ({
