@@ -91,7 +91,10 @@ export function addActivity(date: string, name: string): AppData {
   const data = loadData();
   loadActivitiesForDate(data, date);
   const id = Date.now();
-  data.dailyActivities[date].push({ id, name, completed: false });
+  const newActivity = { id, name, completed: false };
+  data.dailyActivities[date].push(newActivity);
+  // Also add to master template
+  data.masterActivities.push({ id, name });
   saveData(data);
   return { ...data };
 }
