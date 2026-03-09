@@ -8,13 +8,20 @@ export interface DailyActivities {
   [date: string]: Activity[];
 }
 
+export interface MasterActivity {
+  id: number;
+  name: string;
+}
+
 export interface AppData {
+  masterActivities: MasterActivity[];
   dailyActivities: DailyActivities;
 }
 
 const STORAGE_KEY = "daily-checklist-data";
 
 const defaultData: AppData = {
+  masterActivities: [],
   dailyActivities: {},
 };
 
