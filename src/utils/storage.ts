@@ -8,13 +8,20 @@ export interface DailyActivities {
   [date: string]: Activity[];
 }
 
+export interface MasterActivity {
+  id: number;
+  name: string;
+}
+
 export interface AppData {
+  masterActivities: MasterActivity[];
   dailyActivities: DailyActivities;
 }
 
 const STORAGE_KEY = "daily-checklist-data";
 
 const defaultData: AppData = {
+  masterActivities: [],
   dailyActivities: {},
 };
 
@@ -34,7 +41,7 @@ export function loadData(): AppData {
 }
 
 function migrateOldData(old: { activities: { id: number; name: string }[]; dailyProgress: { [date: string]: { [id: string]: boolean } } }): AppData {
-  const data: AppData = { dailyActivities: {} };
+  const data: AppData = { masterActivities: old.activities.map(a => ({ id: a.id, name: a.name })), dailyActivities: {} };
   const dates = Object.keys(old.dailyProgress);
   for (const date of dates) {
     data.dailyActivities[date] = old.activities.map(a => ({
@@ -59,25 +66,14 @@ export function formatDate(d: Date): string {
 }
 
 /**
- * Find the closest previous date that has activity data.
- */
-function getPreviousAvailableDate(data: AppData, date: string): string | null {
-  const dates = Object.keys(data.dailyActivities)
-    .filter(d => d < date && data.dailyActivities[d].length > 0)
-    .sort();
-  return dates.length > 0 ? dates[dates.length - 1] : null;
-}
-
-/**
- * Load activities for a given date. If none exist, inherit from the closest previous day.
- * This also persists the inherited snapshot.
+ * Load activities for a given date. If none exist, initialize from master template.
  */
 export function loadActivitiesForDate(data: AppData, date: string): AppData {
   if (data.dailyActivities[date]) return data;
-  const prevDate = getPreviousAvailableDate(data, date);
-  if (prevDate) {
-    data.dailyActivities[date] = data.dailyActivities[prevDate].map(a => ({
-      ...a,
+  if (data.masterActivities.length > 0) {
+    data.dailyActivities[date] = data.masterActivities.map(a => ({
+      id: a.id,
+      name: a.name,
       completed: false,
     }));
   } else {
@@ -95,7 +91,10 @@ export function addActivity(date: string, name: string): AppData {
   const data = loadData();
   loadActivitiesForDate(data, date);
   const id = Date.now();
-  data.dailyActivities[date].push({ id, name, completed: false });
+  const newActivity = { id, name, completed: false };
+  data.dailyActivities[date].push(newActivity);
+  // Also add to master template
+  data.masterActivities.push({ id, name });
   saveData(data);
   return { ...data };
 }
@@ -105,6 +104,7 @@ export function deleteActivity(date: string, id: number): AppData {
   if (data.dailyActivities[date]) {
     data.dailyActivities[date] = data.dailyActivities[date].filter(a => a.id !== id);
   }
+  // Note: only removes from this day's snapshot, master template unchanged
   saveData(data);
   return { ...data };
 }
@@ -116,6 +116,7 @@ export function editActivity(date: string, id: number, newName: string): AppData
     const activity = activities.find(a => a.id === id);
     if (activity) activity.name = newName;
   }
+  // Note: only edits this day's snapshot, master template unchanged
   saveData(data);
   return { ...data };
 }
