@@ -1,15 +1,12 @@
 import { ClipboardList } from "lucide-react";
-import type { Activity, DailyProgress } from "@/utils/storage";
+import type { Activity } from "@/utils/storage";
 
 interface Props {
   activities: Activity[];
-  dailyProgress: DailyProgress;
   selectedDate: string;
 }
 
-export default function HistoryTable({ activities, dailyProgress, selectedDate }: Props) {
-  const dayData = dailyProgress[selectedDate] || {};
-
+export default function HistoryTable({ activities, selectedDate }: Props) {
   return (
     <div className="card-container animate-fade-in">
       <div className="flex items-center gap-2 mb-4">
@@ -31,23 +28,20 @@ export default function HistoryTable({ activities, dailyProgress, selectedDate }
               </tr>
             </thead>
             <tbody>
-              {activities.map((a) => {
-                const done = !!dayData[String(a.id)];
-                return (
-                  <tr key={a.id} className="border-b border-border/50 transition-all duration-200 hover:bg-secondary/60">
-                    <td className="py-2.5 px-3 text-card-foreground">{a.name}</td>
-                    <td className="py-2.5 px-3 text-center">
-                      <span
-                        className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium transition-all duration-300
-                          ${done ? "bg-success/15 text-success" : "bg-muted text-muted-foreground"}`}
-                      >
-                        {done ? "Done" : "Pending"}
-                      </span>
-                    </td>
-                    <td className="py-2.5 px-3 text-right text-muted-foreground text-xs">{selectedDate}</td>
-                  </tr>
-                );
-              })}
+              {activities.map((a) => (
+                <tr key={a.id} className="border-b border-border/50 transition-all duration-200 hover:bg-secondary/60">
+                  <td className="py-2.5 px-3 text-card-foreground">{a.name}</td>
+                  <td className="py-2.5 px-3 text-center">
+                    <span
+                      className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium transition-all duration-300
+                        ${a.completed ? "bg-success/15 text-success" : "bg-muted text-muted-foreground"}`}
+                    >
+                      {a.completed ? "Done" : "Pending"}
+                    </span>
+                  </td>
+                  <td className="py-2.5 px-3 text-right text-muted-foreground text-xs">{selectedDate}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
