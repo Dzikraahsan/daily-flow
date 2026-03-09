@@ -104,6 +104,7 @@ export function deleteActivity(date: string, id: number): AppData {
   if (data.dailyActivities[date]) {
     data.dailyActivities[date] = data.dailyActivities[date].filter(a => a.id !== id);
   }
+  // Note: only removes from this day's snapshot, master template unchanged
   saveData(data);
   return { ...data };
 }
