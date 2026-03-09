@@ -116,6 +116,7 @@ export function editActivity(date: string, id: number, newName: string): AppData
     const activity = activities.find(a => a.id === id);
     if (activity) activity.name = newName;
   }
+  // Note: only edits this day's snapshot, master template unchanged
   saveData(data);
   return { ...data };
 }
