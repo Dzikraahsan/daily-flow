@@ -216,6 +216,10 @@
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+    scrollbar-width: none !important
+  }
   * {
     @apply border-border;
   }
@@ -231,16 +235,5 @@
   }
   .scrollbar-thin {
     scrollbar-width: none !important;
-    scrollbar-color: hsl(var(--muted)) transparent;
-  }
-  .scrollbar-thin::-webkit-scrollbar {
-    width: 6px;
-  }
-  .scrollbar-thin::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: hsl(var(--muted));
-    border-radius: 0px;
   }
 }

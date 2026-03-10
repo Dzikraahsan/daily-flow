@@ -58,16 +58,17 @@ export default function Checklist({ activities, selectedDate, onToggle, onAdd, o
         <span className="ml-auto text-xs font-semibold text-muted-foreground">{selectedDate}</span>
       </div>
 
-      <form onSubmit={handleAddSubmit} className="flex gap-2 mb-4">
+      <form onSubmit={handleAddSubmit} className="flex flex-col sm:flex-row gap-2 mb-4">
         <input
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           placeholder="Add activity for this day only..."
           className="flex-1 px-4 py-2 text-sm bg-secondary rounded-lg border border-input text-card-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all duration-300"
         />
+
         <button
           type="submit"
-          className="px-3 py-2 bg-accent text-accent-foreground rounded-lg text-sm font-medium flex items-center gap-1.5 hover:opacity-90 transition-all duration-300 active:scale-95"
+          className="w-full sm:w-auto px-3 py-2 bg-accent text-accent-foreground rounded-lg text-sm font-medium flex items-center justify-center gap-1.5 hover:opacity-90 transition-all duration-300 active:scale-95"
         >
           <Plus className="w-4 h-4" />
           Add
