@@ -24,7 +24,7 @@ export default function ResetData({ onReset }: Props) {
         <AlertTriangle className="w-5 h-5 text-destructive" />
         <h2 className="text-lg font-semibold text-card-foreground">Reset Application Data</h2>
       </div>
-      <p className="text-sm text-muted-foreground mb-4">
+      <p className="text-xs text-muted-foreground mb-4">
         This will permanently delete all your activities, progress history, and weekday templates. This action cannot be undone.
       </p>
       <AlertDialog>
@@ -37,7 +37,7 @@ export default function ResetData({ onReset }: Props) {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure you want to delete all data?</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogDescription className="text-xs">
               This action cannot be undone. All weekday templates, daily overrides, and progress history will be permanently deleted.
             </AlertDialogDescription>
           </AlertDialogHeader>
