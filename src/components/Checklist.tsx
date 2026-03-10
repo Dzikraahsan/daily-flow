@@ -1,20 +1,22 @@
 import { useState } from "react";
-import { Check, Pencil, Trash2, X, Save, ListChecks } from "lucide-react";
+import { Check, Pencil, Trash2, X, Save, ListChecks, Plus } from "lucide-react";
 import type { Activity } from "@/utils/storage";
 
 interface Props {
   activities: Activity[];
   selectedDate: string;
   onToggle: (activityId: number) => void;
+  onAdd: (name: string) => void;
   onEdit: (id: number, name: string) => void;
   onDelete: (id: number) => void;
 }
 
-export default function Checklist({ activities, selectedDate, onToggle, onEdit, onDelete }: Props) {
+export default function Checklist({ activities, selectedDate, onToggle, onAdd, onEdit, onDelete }: Props) {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editName, setEditName] = useState("");
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [removedIds, setRemovedIds] = useState<Set<number>>(new Set());
+  const [newName, setNewName] = useState("");
 
   const startEdit = (a: Activity) => {
     setEditingId(a.id);
@@ -41,6 +43,13 @@ export default function Checklist({ activities, selectedDate, onToggle, onEdit, 
     }, 300);
   };
 
+  const handleAddSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newName.trim()) return;
+    onAdd(newName.trim());
+    setNewName("");
+  };
+
   return (
     <div className="card-container animate-fade-in">
       <div className="flex items-center gap-2 mb-4">
@@ -49,11 +58,27 @@ export default function Checklist({ activities, selectedDate, onToggle, onEdit, 
         <span className="ml-auto text-xs text-muted-foreground">{selectedDate}</span>
       </div>
 
+      <form onSubmit={handleAddSubmit} className="flex gap-2 mb-4">
+        <input
+          value={newName}
+          onChange={(e) => setNewName(e.target.value)}
+          placeholder="Add activity for this day only..."
+          className="flex-1 px-4 py-2 text-sm bg-secondary rounded-lg border border-input text-card-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all duration-300"
+        />
+        <button
+          type="submit"
+          className="px-3 py-2 bg-accent text-accent-foreground rounded-lg text-sm font-medium flex items-center gap-1.5 hover:opacity-90 transition-all duration-300 active:scale-95"
+        >
+          <Plus className="w-4 h-4" />
+          Add
+        </button>
+      </form>
+
       {activities.length === 0 ? (
         <div className="text-center py-8 text-muted-foreground animate-fade-in">
           <ListChecks className="w-10 h-10 mx-auto mb-2 opacity-40" />
           <p className="text-sm">No activities yet.</p>
-          <p className="text-xs">Add your first activity to start tracking.</p>
+          <p className="text-xs">Add activities via the Activity Manager or for this day only above.</p>
         </div>
       ) : (
         <div className="max-h-[300px] overflow-y-auto scrollbar-thin space-y-2 pr-1">
