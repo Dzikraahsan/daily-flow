@@ -3,9 +3,11 @@ import { CheckCircle2 } from "lucide-react";
 import CalendarPicker from "@/components/CalendarPicker";
 import ProgressBar from "@/components/ProgressBar";
 import Checklist from "@/components/Checklist";
-import ActivityForm from "@/components/ActivityForm";
+import ActivityManager from "@/components/ActivityManager";
 import HistoryTable from "@/components/HistoryTable";
 import ProgressChart from "@/components/ProgressChart";
+import ThemeToggle from "@/components/ThemeToggle";
+import ResetData from "@/components/ResetData";
 import {
   loadData,
   loadActivitiesForDate,
@@ -16,6 +18,11 @@ import {
   calculateDailyProgress,
   getLast10DaysProgress,
   getActivitiesForDate,
+  getWeekdayTemplate,
+  getWeekdayName,
+  addActivityToTemplate,
+  deleteActivityFromTemplate,
+  editActivityInTemplate,
   formatDate,
   type AppData,
 } from "@/utils/storage";
@@ -29,25 +36,35 @@ const Index = () => {
   });
   const [selectedDate, setSelectedDate] = useState(todayStr);
 
-  // When date changes, ensure activities are initialized (inherit if needed)
   useEffect(() => {
     setData(prev => loadActivitiesForDate({ ...prev }, selectedDate));
   }, [selectedDate]);
 
+  const weekday = useMemo(() => getWeekdayName(selectedDate), [selectedDate]);
   const activities = useMemo(() => getActivitiesForDate(data, selectedDate), [data, selectedDate]);
+  const template = useMemo(() => getWeekdayTemplate(data, weekday), [data, weekday]);
   const progress = useMemo(() => calculateDailyProgress(data, selectedDate), [data, selectedDate]);
   const chartData = useMemo(() => getLast10DaysProgress(data, selectedDate), [data, selectedDate]);
 
-  const handleAdd = useCallback((name: string) => setData(addActivity(selectedDate, name)), [selectedDate]);
-  const handleDelete = useCallback((id: number) => setData(deleteActivity(selectedDate, id)), [selectedDate]);
-  const handleEdit = useCallback((id: number, name: string) => setData(editActivity(selectedDate, id, name)), [selectedDate]);
-  const handleToggle = useCallback((id: number) => {
-    setData(toggleActivityStatus(selectedDate, id));
+  // Daily checklist handlers (affect only selected date)
+  const handleDailyAdd = useCallback((name: string) => setData(addActivity(selectedDate, name)), [selectedDate]);
+  const handleDailyDelete = useCallback((id: number) => setData(deleteActivity(selectedDate, id)), [selectedDate]);
+  const handleDailyEdit = useCallback((id: number, name: string) => setData(editActivity(selectedDate, id, name)), [selectedDate]);
+  const handleToggle = useCallback((id: number) => setData(toggleActivityStatus(selectedDate, id)), [selectedDate]);
+
+  // Activity Manager handlers (affect weekday template globally)
+  const handleTemplateAdd = useCallback((name: string) => setData(addActivityToTemplate(weekday, name)), [weekday]);
+  const handleTemplateDelete = useCallback((id: number) => setData(deleteActivityFromTemplate(weekday, id)), [weekday]);
+  const handleTemplateEdit = useCallback((id: number, name: string) => setData(editActivityInTemplate(weekday, id, name)), [weekday]);
+
+  const handleReset = useCallback(() => {
+    const d = loadData();
+    setData(loadActivitiesForDate(d, selectedDate));
   }, [selectedDate]);
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border">
+    <div className="min-h-screen bg-background transition-colors duration-300">
+      <header className="sticky top-0 z-10 bg-background/70 backdrop-blur-md border-b border-border transition-colors duration-300">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center gap-3">
           <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
             <CheckCircle2 className="w-5 h-5 text-primary-foreground" />
@@ -55,6 +72,9 @@ const Index = () => {
           <div>
             <h1 className="text-xl font-bold text-foreground leading-tight">Daily Tracker</h1>
             <p className="text-xs text-muted-foreground">Track your habits, build consistency</p>
+          </div>
+          <div className="ml-auto">
+            <ThemeToggle />
           </div>
         </div>
       </header>
@@ -64,7 +84,13 @@ const Index = () => {
           <CalendarPicker selectedDate={selectedDate} onDateChange={setSelectedDate} />
           <div className="space-y-6">
             <ProgressBar progress={progress} />
-            <ActivityForm onAdd={handleAdd} />
+            <ActivityManager
+              weekday={weekday}
+              template={template}
+              onAdd={handleTemplateAdd}
+              onEdit={handleTemplateEdit}
+              onDelete={handleTemplateDelete}
+            />
           </div>
         </div>
 
@@ -72,14 +98,16 @@ const Index = () => {
           activities={activities}
           selectedDate={selectedDate}
           onToggle={handleToggle}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
+          onEdit={handleDailyEdit}
+          onDelete={handleDailyDelete}
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <HistoryTable activities={activities} selectedDate={selectedDate} />
           <ProgressChart data={chartData} />
         </div>
+
+        <ResetData onReset={handleReset} />
       </main>
     </div>
   );

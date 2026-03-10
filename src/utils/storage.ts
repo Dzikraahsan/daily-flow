@@ -4,46 +4,75 @@ export interface Activity {
   completed: boolean;
 }
 
-export interface DailyActivities {
-  [date: string]: Activity[];
-}
-
-export interface MasterActivity {
+export interface WeekdayTemplate {
   id: number;
   name: string;
 }
 
+export interface WeekdayTemplates {
+  [weekday: string]: WeekdayTemplate[]; // "Monday", "Tuesday", etc.
+}
+
+export interface DailyActivities {
+  [date: string]: Activity[];
+}
+
 export interface AppData {
-  masterActivities: MasterActivity[];
+  weekdayTemplates: WeekdayTemplates;
   dailyActivities: DailyActivities;
 }
 
 const STORAGE_KEY = "daily-checklist-data";
+const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+export function getWeekdayName(date: string): string {
+  const d = new Date(date + "T00:00:00");
+  return WEEKDAYS[d.getDay()];
+}
+
+export function getAllWeekdays(): string[] {
+  return [...WEEKDAYS];
+}
 
 const defaultData: AppData = {
-  masterActivities: [],
+  weekdayTemplates: {},
   dailyActivities: {},
 };
 
 export function loadData(): AppData {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { ...defaultData };
+    if (!raw) return JSON.parse(JSON.stringify(defaultData));
     const parsed = JSON.parse(raw);
-    // Migration from old format
+    // Migration from old formats
+    if (parsed.masterActivities) {
+      return migrateFromMasterTemplate(parsed);
+    }
     if (parsed.activities && parsed.dailyProgress) {
-      return migrateOldData(parsed);
+      return migrateFromLegacy(parsed);
     }
     return parsed as AppData;
   } catch {
-    return { ...defaultData };
+    return JSON.parse(JSON.stringify(defaultData));
   }
 }
 
-function migrateOldData(old: { activities: { id: number; name: string }[]; dailyProgress: { [date: string]: { [id: string]: boolean } } }): AppData {
-  const data: AppData = { masterActivities: old.activities.map(a => ({ id: a.id, name: a.name })), dailyActivities: {} };
-  const dates = Object.keys(old.dailyProgress);
-  for (const date of dates) {
+function migrateFromMasterTemplate(old: { masterActivities: { id: number; name: string }[]; dailyActivities: DailyActivities }): AppData {
+  const data: AppData = { weekdayTemplates: {}, dailyActivities: old.dailyActivities || {} };
+  // Set all weekdays to the master template
+  for (const day of WEEKDAYS) {
+    data.weekdayTemplates[day] = old.masterActivities.map(a => ({ id: a.id, name: a.name }));
+  }
+  saveData(data);
+  return data;
+}
+
+function migrateFromLegacy(old: { activities: { id: number; name: string }[]; dailyProgress: { [date: string]: { [id: string]: boolean } } }): AppData {
+  const data: AppData = { weekdayTemplates: {}, dailyActivities: {} };
+  for (const day of WEEKDAYS) {
+    data.weekdayTemplates[day] = old.activities.map(a => ({ id: a.id, name: a.name }));
+  }
+  for (const date of Object.keys(old.dailyProgress)) {
     data.dailyActivities[date] = old.activities.map(a => ({
       id: a.id,
       name: a.name,
@@ -66,19 +95,17 @@ export function formatDate(d: Date): string {
 }
 
 /**
- * Load activities for a given date. If none exist, initialize from master template.
+ * Load activities for a given date. If none exist, initialize from weekday template.
  */
 export function loadActivitiesForDate(data: AppData, date: string): AppData {
   if (data.dailyActivities[date]) return data;
-  if (data.masterActivities.length > 0) {
-    data.dailyActivities[date] = data.masterActivities.map(a => ({
-      id: a.id,
-      name: a.name,
-      completed: false,
-    }));
-  } else {
-    data.dailyActivities[date] = [];
-  }
+  const weekday = getWeekdayName(date);
+  const template = data.weekdayTemplates[weekday] || [];
+  data.dailyActivities[date] = template.map(a => ({
+    id: a.id,
+    name: a.name,
+    completed: false,
+  }));
   saveData(data);
   return { ...data };
 }
@@ -87,28 +114,80 @@ export function getActivitiesForDate(data: AppData, date: string): Activity[] {
   return data.dailyActivities[date] || [];
 }
 
-export function addActivity(date: string, name: string): AppData {
+export function getWeekdayTemplate(data: AppData, weekday: string): WeekdayTemplate[] {
+  return data.weekdayTemplates[weekday] || [];
+}
+
+/** Add activity to a weekday template (from Activity Manager) */
+export function addActivityToTemplate(weekday: string, name: string): AppData {
   const data = loadData();
-  loadActivitiesForDate(data, date);
   const id = Date.now();
-  const newActivity = { id, name, completed: false };
-  data.dailyActivities[date].push(newActivity);
-  // Also add to master template
-  data.masterActivities.push({ id, name });
+  if (!data.weekdayTemplates[weekday]) data.weekdayTemplates[weekday] = [];
+  data.weekdayTemplates[weekday].push({ id, name });
   saveData(data);
   return { ...data };
 }
 
+/** Delete activity from weekday template (global delete - affects all dates of that weekday) */
+export function deleteActivityFromTemplate(weekday: string, activityId: number): AppData {
+  const data = loadData();
+  if (data.weekdayTemplates[weekday]) {
+    data.weekdayTemplates[weekday] = data.weekdayTemplates[weekday].filter(a => a.id !== activityId);
+  }
+  // Also remove from all daily overrides for this weekday
+  for (const date of Object.keys(data.dailyActivities)) {
+    if (getWeekdayName(date) === weekday) {
+      data.dailyActivities[date] = data.dailyActivities[date].filter(a => a.id !== activityId);
+    }
+  }
+  saveData(data);
+  return { ...data };
+}
+
+/** Edit activity in weekday template */
+export function editActivityInTemplate(weekday: string, activityId: number, newName: string): AppData {
+  const data = loadData();
+  const template = data.weekdayTemplates[weekday];
+  if (template) {
+    const item = template.find(a => a.id === activityId);
+    if (item) item.name = newName;
+  }
+  // Also update in all daily overrides for this weekday
+  for (const date of Object.keys(data.dailyActivities)) {
+    if (getWeekdayName(date) === weekday) {
+      const act = data.dailyActivities[date].find(a => a.id === activityId);
+      if (act) act.name = newName;
+    }
+  }
+  saveData(data);
+  return { ...data };
+}
+
+/** Add activity to a specific date only (daily override) */
+export function addActivity(date: string, name: string): AppData {
+  const data = loadData();
+  loadActivitiesForDate(data, date);
+  const id = Date.now();
+  data.dailyActivities[date].push({ id, name, completed: false });
+  // Also add to weekday template
+  const weekday = getWeekdayName(date);
+  if (!data.weekdayTemplates[weekday]) data.weekdayTemplates[weekday] = [];
+  data.weekdayTemplates[weekday].push({ id, name });
+  saveData(data);
+  return { ...data };
+}
+
+/** Delete activity from a specific date only (daily override, does NOT affect template) */
 export function deleteActivity(date: string, id: number): AppData {
   const data = loadData();
   if (data.dailyActivities[date]) {
     data.dailyActivities[date] = data.dailyActivities[date].filter(a => a.id !== id);
   }
-  // Note: only removes from this day's snapshot, master template unchanged
   saveData(data);
   return { ...data };
 }
 
+/** Edit activity on a specific date only */
 export function editActivity(date: string, id: number, newName: string): AppData {
   const data = loadData();
   const activities = data.dailyActivities[date];
@@ -116,7 +195,6 @@ export function editActivity(date: string, id: number, newName: string): AppData
     const activity = activities.find(a => a.id === id);
     if (activity) activity.name = newName;
   }
-  // Note: only edits this day's snapshot, master template unchanged
   saveData(data);
   return { ...data };
 }
@@ -149,4 +227,8 @@ export function getLast10DaysProgress(data: AppData, selectedDate: string): { da
     result.push({ date: dateStr, progress: calculateDailyProgress(data, dateStr) });
   }
   return result;
+}
+
+export function resetAllData(): void {
+  localStorage.removeItem(STORAGE_KEY);
 }
