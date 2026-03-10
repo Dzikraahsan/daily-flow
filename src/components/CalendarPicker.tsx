@@ -6,7 +6,7 @@ interface Props {
   onDateChange: (date: string) => void;
 }
 
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 export default function CalendarPicker({ selectedDate, onDateChange }: Props) {
   const date = useMemo(() => new Date(selectedDate), [selectedDate]);
@@ -57,7 +57,7 @@ export default function CalendarPicker({ selectedDate, onDateChange }: Props) {
           <ChevronLeft className="w-5 h-5" />
         </button>
         <span className="font-semibold text-card-foreground transition-all duration-300">
-          {MONTHS[month]} {year}
+          {MONTHS[month]} <span className="organetto-600">{year}</span>
         </span>
         <button
           onClick={() => navigate(1)}
@@ -73,7 +73,7 @@ export default function CalendarPicker({ selectedDate, onDateChange }: Props) {
         ))}
       </div>
 
-      <div className="grid grid-cols-7 gap-1 text-center text-sm">
+      <div className="grid grid-cols-7 gap-1 text-center text-sm organetto-500">
         {days.map((day, i) => {
           if (day === null) return <div key={`e-${i}`} />;
           const isSelected = day === selectedDay;

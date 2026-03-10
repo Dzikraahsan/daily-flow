@@ -2,8 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
 @layer base {
   :root {
     --background: 220 20% 97%;
@@ -87,13 +85,143 @@
   }
 }
 
+/* === Pretendard === */
+
+@font-face {
+    font-family: "Pretendard";
+    src: url("/fonts/Pretendard-Regular.woff2") format("woff2");
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* === Organetto Regular === */
+
+@font-face {
+    font-family: "Organetto";
+    src: url("/fonts/Organetto-Light.woff2") format("woff2");
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Organetto";
+    src: url("/fonts/Organetto-Regular.woff2") format("woff2");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Organetto-Bold";
+    src: url("/fonts/Organetto-Bold.woff2") format("woff2");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* === Organetto Ultra Bold === */
+
+@font-face {
+    font-family: "Organetto-Ultrabold";
+    src: url("/fonts/Organetto-Ultrabold.woff2") format("woff2");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* === Organetto Ultra Bold Semi Extended === */
+
+@font-face {
+    font-family: "Organetto UltraBold SemiExt";
+    src: url("/fonts/Organetto-UltraBoldSemiExt.woff2") format("woff2");
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* CLASSES FONTS */
+
+.organetto-100 {
+    font-family: "Organetto";
+    src: url("/fonts/Organetto-Light.woff2") format("woff2");
+    font-weight: 100;
+    font-style: normal;
+    font-display: swap;
+}
+
+.organetto-200 {
+    font-family: "Organetto";
+    src: url("/fonts/Organetto-Light.woff2") format("woff2");
+    font-weight: 200;
+    font-style: normal;
+    font-display: swap;
+}
+
+.organetto-300 {
+    font-family: "Organetto";
+    src: url("/fonts/Organetto-Light.woff2") format("woff2");
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+.organetto-400 {
+    font-family: "Organetto";
+    src: url("/fonts/Organetto-Light.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+.organetto-500 {
+    font-family: "Organetto";
+    src: url("/fonts/Organetto-Light.woff2") format("woff2");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+.organetto-600 {
+    font-family: "Organetto";
+    src: url("/fonts/Organetto-Light.woff2") format("woff2");
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+.organetto-700 {
+    font-family: "Organetto";
+    src: url("/fonts/Organetto-Light.woff2") format("woff2");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+.organetto-ultrabold {
+    font-family: "Organetto-Ultrabold";
+    src: url("/fonts/Organetto-Ultrabold.woff2") format("woff2");
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
+.organetto-ultraboldsemiext {
+    font-family: "Organetto UltraBold SemiExt";
+    src: url("/fonts/Organetto-UltraBoldSemiExt.woff2") format("woff2");
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
 @layer base {
   * {
     @apply border-border;
   }
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Pretendard', sans-serif;
   }
 }
 
@@ -102,7 +230,7 @@
     @apply bg-card rounded-xl shadow-md p-5 transition-all duration-300 hover:shadow-lg border border-border/50;
   }
   .scrollbar-thin {
-    scrollbar-width: thin;
+    scrollbar-width: none !important;
     scrollbar-color: hsl(var(--muted)) transparent;
   }
   .scrollbar-thin::-webkit-scrollbar {
@@ -113,6 +241,6 @@
   }
   .scrollbar-thin::-webkit-scrollbar-thumb {
     background-color: hsl(var(--muted));
-    border-radius: 3px;
+    border-radius: 0px;
   }
 }

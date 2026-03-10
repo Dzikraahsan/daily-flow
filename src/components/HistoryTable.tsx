@@ -12,13 +12,13 @@ export default function HistoryTable({ activities, selectedDate }: Props) {
       <div className="flex items-center gap-2 mb-4">
         <ClipboardList className="w-5 h-5 text-primary" />
         <h2 className="text-lg font-semibold text-card-foreground">Daily History</h2>
-        <span className="ml-auto text-xs text-muted-foreground">{selectedDate}</span>
+        <span className="ml-auto text-xs font-semibold text-muted-foreground">{selectedDate}</span>
       </div>
 
       {activities.length === 0 ? (
         <p className="text-sm text-muted-foreground text-center py-6">No activities to display.</p>
       ) : (
-        <div className="max-h-[350px] overflow-y-auto scrollbar-thin">
+        <div className="max-h-[332px] overflow-y-auto scrollbar-thin">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border">

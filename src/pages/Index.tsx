@@ -8,6 +8,7 @@ import HistoryTable from "@/components/HistoryTable";
 import ProgressChart from "@/components/ProgressChart";
 import ThemeToggle from "@/components/ThemeToggle";
 import ResetData from "@/components/ResetData";
+import Footer from "@/components/Footer";
 import {
   loadData,
   getActivitiesForDate,
@@ -41,7 +42,12 @@ const Index = () => {
   // Daily checklist handlers (affect only selected date)
   const handleDailyAdd = useCallback((name: string) => setData(addDailyActivity(selectedDate, name)), [selectedDate]);
   const handleDailyDelete = useCallback((id: number) => setData(deleteDailyActivity(selectedDate, id)), [selectedDate]);
-  const handleDailyEdit = useCallback((id: number, name: string) => setData(editDailyActivity(selectedDate, id, name)), [selectedDate]);
+  const handleDailyEdit = useCallback(
+  (id: number, name: string) => {
+    setData((prev) => editDailyActivity(prev, selectedDate, id, name));
+  },
+  [selectedDate]
+);
   const handleToggle = useCallback((id: number) => setData(toggleActivityStatus(selectedDate, id)), [selectedDate]);
 
   // Activity Manager handlers (affect weekday template globally)
@@ -59,7 +65,7 @@ const Index = () => {
             <CheckCircle2 className="w-5 h-5 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-foreground leading-tight">Daily Tracker</h1>
+            <h1 className="text-xl font-bold text-foreground leading-tight">Daily Tracker Activities</h1>
             <p className="text-xs text-muted-foreground">Track your habits, build consistency</p>
           </div>
           <div className="ml-auto">
@@ -98,6 +104,8 @@ const Index = () => {
         </div>
 
         <ResetData onReset={handleReset} />
+
+        <Footer/>
       </main>
     </div>
   );

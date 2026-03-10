@@ -70,12 +70,13 @@ export function getActivitiesForDate(data: AppData, date: string): Activity[] {
   const override = getOverride(data, date);
 
   const deletedSet = new Set(override.deleted);
+  const renamed = override.renamed || {};
 
   const activities: Activity[] = template
     .filter(t => !deletedSet.has(t.id))
     .map(t => ({
       id: t.id,
-      name: t.name,
+      name: renamed[t.id] ?? t.name,   // ← pakai rename override jika ada
       completed: !!override.completed[t.id],
     }));
 
@@ -83,7 +84,7 @@ export function getActivitiesForDate(data: AppData, date: string): Activity[] {
   for (const a of override.added) {
     activities.push({
       id: a.id,
-      name: a.name,
+      name: renamed[a.id] ?? a.name,   // ← juga cek rename untuk added
       completed: !!override.completed[a.id],
     });
   }
@@ -256,13 +257,23 @@ export function deleteDailyActivity(date: string, activityId: number): AppData {
 }
 
 /** Edit activity name for a specific date (daily-added only) */
-export function editDailyActivity(date: string, activityId: number, newName: string): AppData {
-  const data = loadData();
+export function editDailyActivity(
+  data: AppData,
+  date: string,
+  activityId: number,
+  newName: string
+): AppData {
+
   const ov = ensureOverride(data, date);
-  const added = ov.added.find(a => a.id === activityId);
-  if (added) added.name = newName;
-  // Note: editing template activity names per-date is not supported to keep data clean
+
+  if (!ov.renamed) {
+    ov.renamed = {};
+  }
+
+  ov.renamed[activityId] = newName;
+
   saveData(data);
+
   return { ...data };
 }
 
@@ -288,7 +299,7 @@ export function calculateDailyProgress(data: AppData, date: string): number {
 export function getLast10DaysProgress(data: AppData, selectedDate: string): { date: string; progress: number }[] {
   const result: { date: string; progress: number }[] = [];
   const base = new Date(selectedDate + "T00:00:00");
-  for (let i = 9; i >= 0; i--) {
+  for (let i = 6; i >= 0; i--) {
     const d = new Date(base);
     d.setDate(d.getDate() - i);
     const dateStr = formatDate(d);

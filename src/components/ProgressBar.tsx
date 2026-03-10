@@ -13,7 +13,7 @@ export default function ProgressBar({ progress }: Props) {
       </div>
       <div className="flex items-center justify-between mb-2">
         <span className="text-sm text-muted-foreground">Completion</span>
-        <span className="text-2xl font-bold text-primary transition-all duration-500">{progress}%</span>
+        <span className="text-2xl organetto-700 text-primary transition-all duration-500">{progress}%</span>
       </div>
       <div className="w-full h-3 bg-secondary rounded-full overflow-hidden">
         <div

@@ -55,7 +55,7 @@ export default function Checklist({ activities, selectedDate, onToggle, onAdd, o
       <div className="flex items-center gap-2 mb-4">
         <ListChecks className="w-5 h-5 text-primary" />
         <h2 className="text-lg font-semibold text-card-foreground">Activity Checklist</h2>
-        <span className="ml-auto text-xs text-muted-foreground">{selectedDate}</span>
+        <span className="ml-auto text-xs font-semibold text-muted-foreground">{selectedDate}</span>
       </div>
 
       <form onSubmit={handleAddSubmit} className="flex gap-2 mb-4">
@@ -120,15 +120,22 @@ export default function Checklist({ activities, selectedDate, onToggle, onAdd, o
                       {a.name}
                     </span>
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                      <button onClick={() => startEdit(a)} className="p-1.5 rounded-md hover:bg-accent transition-all duration-200">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          startEdit(a);
+                        }}
+                        className="p-1.5 rounded-md hover:bg-accent transition-all duration-200"
+                      >
                         <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
                       </button>
                       {deletingId === a.id ? (
                         <div className="flex gap-1 animate-scale-in">
-                          <button onClick={() => confirmDelete(a.id)} className="p-1.5 rounded-md bg-destructive/10 text-destructive hover:bg-destructive/20 transition-all duration-200 text-xs font-medium">
+                          <button type="button" onClick={() => confirmDelete(a.id)} className="p-1.5 rounded-md bg-destructive/10 text-destructive hover:bg-destructive/20 transition-all duration-200 text-xs font-medium">
                             Yes
                           </button>
-                          <button onClick={() => setDeletingId(null)} className="p-1.5 rounded-md hover:bg-accent transition-all duration-200 text-xs text-muted-foreground">
+                          <button type="button" onClick={() => setDeletingId(null)} className="p-1.5 rounded-md hover:bg-accent transition-all duration-200 text-xs text-muted-foreground">
                             No
                           </button>
                         </div>
