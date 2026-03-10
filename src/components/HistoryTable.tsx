@@ -18,8 +18,8 @@ export default function HistoryTable({ activities, selectedDate }: Props) {
       {activities.length === 0 ? (
         <p className="text-sm text-muted-foreground text-center py-6">No activities to display.</p>
       ) : (
-        <div className="max-h-[332px] overflow-y-auto scrollbar-thin">
-          <table className="w-full text-sm scrollbar">
+        <div className="max-h-[330px] overflow-y-auto no-scrollbar">
+          <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border">
                 <th className="text-left py-2 px-3 text-muted-foreground font-medium">Activity</th>

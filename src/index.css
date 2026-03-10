@@ -215,6 +215,16 @@
     font-display: swap;
 }
 
+/* Hide scrollbar but keep scroll functionality */
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none !important;  /* IE & Edge */
+  scrollbar-width: none !important;     /* Firefox */
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
@@ -232,8 +242,5 @@
 @layer utilities {
   .card-container {
     @apply bg-card rounded-xl shadow-md p-5 transition-all duration-300 hover:shadow-lg border border-border/50;
-  }
-  .scrollbar {
-    scrollbar-width: none !important;
   }
 }
