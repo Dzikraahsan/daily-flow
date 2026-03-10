@@ -63,7 +63,7 @@ export default function Checklist({ activities, selectedDate, onToggle, onAdd, o
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           placeholder="Add activity for this day only..."
-          className="flex-1 px-4 py-2 text-sm bg-secondary rounded-lg border border-input text-card-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all duration-300"
+          className="flex-1 min-w-0 px-4 py-2 text-sm bg-secondary rounded-lg border border-input text-card-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all duration-300"
         />
 
         <button
@@ -108,10 +108,10 @@ export default function Checklist({ activities, selectedDate, onToggle, onAdd, o
                       className="flex-1 px-2 py-1 text-sm bg-secondary rounded border border-input focus:outline-none focus:ring-2 focus:ring-ring transition-all duration-300 text-card-foreground"
                       autoFocus
                     />
-                    <button onClick={saveEdit} className="p-1 text-success hover:scale-110 transition-transform">
+                    <button onClick={saveEdit} className="p-1 text-success hover:scale-110 transition-transform flex-shrink-0">
                       <Save className="w-4 h-4" />
                     </button>
-                    <button onClick={() => setEditingId(null)} className="p-1 text-muted-foreground hover:scale-110 transition-transform">
+                    <button onClick={() => setEditingId(null)} className="p-1 text-muted-foreground hover:scale-110 transition-transform flex-shrink-0">
                       <X className="w-4 h-4" />
                     </button>
                   </div>

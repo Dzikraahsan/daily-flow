@@ -79,18 +79,18 @@ export default function ActivityManager({ weekday, template, onAdd, onEdit, onDe
               className="flex items-center gap-3 p-2.5 rounded-lg transition-all duration-300 hover:bg-secondary group"
             >
               {editingId === a.id ? (
-                <div className="flex items-center gap-2 flex-1">
+                <div className="flex items-center gap-2 flex-1 min-w-0">
                   <input
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && saveEdit()}
-                    className="flex-1 px-2 py-1 text-sm bg-secondary rounded border border-input focus:outline-none focus:ring-2 focus:ring-ring transition-all duration-300 text-card-foreground"
+                    className="flex-1 min-w-0 px-2 py-1 text-sm bg-secondary rounded border border-input focus:outline-none focus:ring-2 focus:ring-ring transition-all duration-300 text-card-foreground"
                     autoFocus
                   />
-                  <button onClick={saveEdit} className="p-1 text-success hover:scale-110 transition-transform">
+                  <button onClick={saveEdit} className="p-1 text-success hover:scale-110 transition-transform flex-shrink-0">
                     <Save className="w-4 h-4" />
                   </button>
-                  <button onClick={() => setEditingId(null)} className="p-1 text-muted-foreground hover:scale-110 transition-transform">
+                  <button onClick={() => setEditingId(null)} className="p-1 text-muted-foreground hover:scale-110 transition-transform flex-shrink-0">
                     <X className="w-4 h-4" />
                   </button>
                 </div>
