@@ -72,7 +72,7 @@ export default function ActivityManager({ weekday, template, onAdd, onEdit, onDe
           No activities in the {weekday} template yet.
         </p>
       ) : (
-        <div className="max-h-[256px] overflow-y-auto scrollbar-thin space-y-1.5 pr-1">
+        <div className="max-h-[256px] overflow-y-auto scrollbar space-y-1.5 pr-1">
           {template.map((a) => (
             <div
               key={a.id}

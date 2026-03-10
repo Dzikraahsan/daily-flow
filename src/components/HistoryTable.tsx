@@ -19,7 +19,7 @@ export default function HistoryTable({ activities, selectedDate }: Props) {
         <p className="text-sm text-muted-foreground text-center py-6">No activities to display.</p>
       ) : (
         <div className="max-h-[332px] overflow-y-auto scrollbar-thin">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm scrollbar">
             <thead>
               <tr className="border-b border-border">
                 <th className="text-left py-2 px-3 text-muted-foreground font-medium">Activity</th>
@@ -29,7 +29,7 @@ export default function HistoryTable({ activities, selectedDate }: Props) {
             </thead>
             <tbody>
               {activities.map((a) => (
-                <tr key={a.id} className="border-b border-border/50 transition-all duration-200 hover:bg-secondary/60">
+                <tr key={a.id} className="border-b border-border/50 transition-all duration-200 hover:bg-secondary/60 text-xs">
                   <td className="py-2.5 px-3 text-card-foreground">{a.name}</td>
                   <td className="py-2.5 px-3 text-center">
                     <span

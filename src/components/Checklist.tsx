@@ -82,7 +82,7 @@ export default function Checklist({ activities, selectedDate, onToggle, onAdd, o
           <p className="text-xs">Add activities via the Activity Manager or for this day only above.</p>
         </div>
       ) : (
-        <div className="max-h-[300px] overflow-y-auto scrollbar-thin space-y-2 pr-1">
+        <div className="max-h-[300px] overflow-y-auto scrollbar-thin space-y-2 pr-1 scrollbar">
           {activities.map((a) => {
             const isRemoving = removedIds.has(a.id);
             return (

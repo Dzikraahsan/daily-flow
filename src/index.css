@@ -233,7 +233,7 @@
   .card-container {
     @apply bg-card rounded-xl shadow-md p-5 transition-all duration-300 hover:shadow-lg border border-border/50;
   }
-  .scrollbar-thin {
+  .scrollbar {
     scrollbar-width: none !important;
   }
 }
