@@ -89,7 +89,7 @@ export default function Checklist({ activities, selectedDate, onToggle, onAdd, o
             return (
               <div
                 key={a.id}
-                className={`items-center gap-3 p-3 rounded-lg transition-all duration-300 hover:bg-secondary group grid grid-cols-[1fr_auto]
+                className={`flex items-center gap-3 p-3 rounded-lg transition-all duration-300 hover:bg-secondary group min-w-0 overflow-hidden
                   ${isRemoving ? "opacity-0 -translate-x-4 h-0 p-0 m-0 overflow-hidden" : "opacity-100"}`}
               >
                 <button
