@@ -72,16 +72,16 @@ export default function ActivityManager({
         </span>
       </div>
 
-      <form onSubmit={handleSubmit} className="flex gap-2 mb-4">
+      <form onSubmit={handleSubmit} className="flex items-center gap-2 mb-4 w-full">
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="New activity name..."
-          className="flex-1 min-h-0 px-4 py-2.5 text-sm bg-secondary rounded-lg border border-input text-card-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all duration-300"
+          className="flex-1 min-w-0 px-4 py-2.5 text-sm bg-secondary rounded-lg border border-input text-card-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all duration-300"
         />
         <button
           type="submit"
-          className="px-4 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium flex items-center gap-1.5 hover:opacity-90 transition-all duration-300 hover:shadow-md active:scale-95"
+          className="flex-shrink-0 px-4 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium flex items-center gap-1.5 hover:opacity-90 transition-all duration-300 hover:shadow-md active:scale-95"
         >
           <Plus className="w-4 h-4" />
           Add
