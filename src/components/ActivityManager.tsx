@@ -97,7 +97,7 @@ export default function ActivityManager({
           {template.map((a) => (
             <div
               key={a.id}
-              className="flex items-center gap-3 p-2.5 rounded-lg transition-all duration-300 hover:bg-secondary group min-w-0 overflow-hidden"
+              className="grid grid-cols-[1fr_auto] items-center gap-3 p-2.5 rounded-lg transition-all duration-300 hover:bg-secondary group min-w-0 overflow-hidden"
             >
               {editingId === a.id ? (
                 <div className="flex items-center gap-2 flex-1 min-w-0">
