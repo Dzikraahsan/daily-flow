@@ -105,7 +105,7 @@ export default function ActivityManager({
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && saveEdit()}
-                    className="flex-1 px-2 py-1 text-sm bg-secondary rounded border border-input focus:outline-none focus:ring-2 focus:ring-ring transition-all duration-300 text-card-foreground"
+                    className="flex-1 min-h-0 px-2 py-1 text-sm bg-secondary rounded border border-input focus:outline-none focus:ring-2 focus:ring-ring transition-all duration-300 text-card-foreground"
                     autoFocus
                   />
                   <button
@@ -116,7 +116,7 @@ export default function ActivityManager({
                   </button>
                   <button
                     onClick={() => setEditingId(null)}
-                    className="p-1 text-muted-foreground hover:scale-110 transition-transform"
+                    className="p-1 text-muted-foreground hover:scale-110 transition-transform flex-shrink-0"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -126,7 +126,7 @@ export default function ActivityManager({
                   <span className="flex-1 text-sm text-card-foreground">
                     {a.name}
                   </span>
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex-shrink-0">
                     <button
                       onClick={() => onMove(a.id, "up")}
                       className="p-1.5 rounded-md hover:bg-accent transition-all duration-200"

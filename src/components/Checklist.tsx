@@ -106,13 +106,13 @@ export default function Checklist({ activities, selectedDate, onToggle, onAdd, o
                       value={editName}
                       onChange={(e) => setEditName(e.target.value)}
                       onKeyDown={(e) => e.key === "Enter" && saveEdit()}
-                      className="flex-1 px-2 py-1 text-sm bg-secondary rounded border border-input focus:outline-none focus:ring-2 focus:ring-ring transition-all duration-300 text-card-foreground"
+                      className="flex-1 min-h-0 px-2 py-1 text-sm bg-secondary rounded border border-input focus:outline-none focus:ring-2 focus:ring-ring transition-all duration-300 text-card-foreground"
                       autoFocus
                     />
-                    <button onClick={saveEdit} className="p-1 text-success hover:scale-110 transition-transform">
+                    <button onClick={saveEdit} className="p-1 text-success hover:scale-110 transition-transform flex-shrink-0">
                       <Save className="w-4 h-4" />
                     </button>
-                    <button onClick={() => setEditingId(null)} className="p-1 text-muted-foreground hover:scale-110 transition-transform">
+                    <button onClick={() => setEditingId(null)} className="p-1 text-muted-foreground hover:scale-110 transition-transform flex-shrink-0">
                       <X className="w-4 h-4" />
                     </button>
                   </div>
@@ -121,7 +121,7 @@ export default function Checklist({ activities, selectedDate, onToggle, onAdd, o
                     <span className={`flex-1 text-sm transition-all duration-300 ${a.completed ? "line-through text-muted-foreground" : "text-card-foreground"}`}>
                       {a.name}
                     </span>
-                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex-shrink-0">
                       {onMove && !isSnapshot && (
                         <>
                           <button onClick={() => onMove(a.id, "up")} className="p-1.5 rounded-md hover:bg-accent transition-all duration-200" title="Move up">
