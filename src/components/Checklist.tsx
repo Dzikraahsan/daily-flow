@@ -121,7 +121,7 @@ export default function Checklist({ activities, selectedDate, onToggle, onAdd, o
                     <span className={`flex-1 min-w-0 text-sm transition-all duration-300 truncate ${a.completed ? "line-through text-muted-foreground" : "text-card-foreground"}`}>
                       {a.name}
                     </span>
-                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex-shrink-0">
+                    <div className="flex gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200 flex-shrink-0">
                       {onMove && !isSnapshot && (
                         <>
                           <button onClick={() => onMove(a.id, "up")} className="p-1.5 rounded-md hover:bg-accent transition-all duration-200" title="Move up">

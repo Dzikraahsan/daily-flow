@@ -126,7 +126,7 @@ export default function ActivityManager({
                   <span className="flex-1 min-w-0 text-sm text-card-foreground truncate">
                     {a.name}
                   </span>
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex-shrink-0">
+                  <div className="flex gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200 flex-shrink-0">
                     <button
                       onClick={() => onMove(a.id, "up")}
                       className="p-1.5 rounded-md hover:bg-accent transition-all duration-200"
