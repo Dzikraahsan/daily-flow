@@ -77,7 +77,7 @@ export default function ActivityManager({
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="New activity name..."
-          className="flex-1 px-4 py-2.5 text-sm bg-secondary rounded-lg border border-input text-card-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all duration-300"
+          className="flex-1 min-h-0 px-4 py-2.5 text-sm bg-secondary rounded-lg border border-input text-card-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all duration-300"
         />
         <button
           type="submit"
@@ -93,7 +93,7 @@ export default function ActivityManager({
           No activities in the {weekday} template yet.
         </p>
       ) : (
-        <div className="max-h-[250px] overflow-y-auto scrollbar-thin space-y-1.5 pr-1">
+        <div className="max-h-[250px] overflow-y-auto hide-scrollbar no-scrollbar space-y-1.5 pr-1">
           {template.map((a) => (
             <div
               key={a.id}
@@ -110,7 +110,7 @@ export default function ActivityManager({
                   />
                   <button
                     onClick={saveEdit}
-                    className="p-1 text-success hover:scale-110 transition-transform"
+                    className="p-1 text-success hover:scale-110 transition-transform flex-shrink-0"
                   >
                     <Save className="w-4 h-4" />
                   </button>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, Pencil, Trash2, X, Save, ListChecks, Plus } from "lucide-react";
+import { Check, Pencil, Trash2, X, Save, ListChecks, Plus, ChevronUp, ChevronDown } from "lucide-react";
 import type { Activity } from "@/utils/storage";
 
 interface Props {
@@ -9,9 +9,11 @@ interface Props {
   onAdd: (name: string) => void;
   onEdit: (id: number, name: string) => void;
   onDelete: (id: number) => void;
+  onMove?: (id: number, direction: "up" | "down") => void;
+  isSnapshot?: boolean;
 }
 
-export default function Checklist({ activities, selectedDate, onToggle, onAdd, onEdit, onDelete }: Props) {
+export default function Checklist({ activities, selectedDate, onToggle, onAdd, onEdit, onDelete, onMove, isSnapshot }: Props) {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editName, setEditName] = useState("");
   const [deletingId, setDeletingId] = useState<number | null>(null);
@@ -55,20 +57,19 @@ export default function Checklist({ activities, selectedDate, onToggle, onAdd, o
       <div className="flex items-center gap-2 mb-4">
         <ListChecks className="w-5 h-5 text-primary" />
         <h2 className="text-lg font-semibold text-card-foreground">Activity Checklist</h2>
-        <span className="ml-auto text-xs font-semibold text-muted-foreground">{selectedDate}</span>
+        <span className="ml-auto text-xs text-muted-foreground">{selectedDate}</span>
       </div>
 
-      <form onSubmit={handleAddSubmit} className="flex flex-col sm:flex-row gap-2 mb-4">
+      <form onSubmit={handleAddSubmit} className="flex gap-2 mb-4">
         <input
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           placeholder="Add activity for this day only..."
-          className="flex-1 min-w-0 px-4 py-2 text-sm bg-secondary rounded-lg border border-input text-card-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all duration-300"
+          className="flex-1 px-4 py-2 text-sm bg-secondary rounded-lg border border-input text-card-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all duration-300"
         />
-
         <button
           type="submit"
-          className="w-full sm:w-auto px-3 py-2 bg-accent text-accent-foreground rounded-lg text-sm font-medium flex items-center justify-center gap-1.5 hover:opacity-90 transition-all duration-300 active:scale-95"
+          className="px-3 py-2 bg-accent text-accent-foreground rounded-lg text-sm font-medium flex items-center gap-1.5 hover:opacity-90 transition-all duration-300 active:scale-95"
         >
           <Plus className="w-4 h-4" />
           Add
@@ -82,7 +83,7 @@ export default function Checklist({ activities, selectedDate, onToggle, onAdd, o
           <p className="text-xs">Add activities via the Activity Manager or for this day only above.</p>
         </div>
       ) : (
-        <div className="max-h-[300px] overflow-y-auto scrollbar-thin space-y-2 pr-1 no-scrollbar">
+        <div className="max-h-[300px] overflow-y-auto no-scrollbar space-y-2 pr-1">
           {activities.map((a) => {
             const isRemoving = removedIds.has(a.id);
             return (
@@ -100,18 +101,18 @@ export default function Checklist({ activities, selectedDate, onToggle, onAdd, o
                 </button>
 
                 {editingId === a.id ? (
-                  <div className="flex min-w-0 items-center gap-2 flex-1">
+                  <div className="flex items-center gap-2 flex-1">
                     <input
                       value={editName}
                       onChange={(e) => setEditName(e.target.value)}
                       onKeyDown={(e) => e.key === "Enter" && saveEdit()}
-                      className="flex-1 min-w-0 px-2 py-1 text-sm bg-secondary rounded border border-input focus:outline-none focus:ring-2 focus:ring-ring transition-all duration-300 text-card-foreground"
+                      className="flex-1 px-2 py-1 text-sm bg-secondary rounded border border-input focus:outline-none focus:ring-2 focus:ring-ring transition-all duration-300 text-card-foreground"
                       autoFocus
                     />
-                    <button onClick={saveEdit} className="p-1 text-success hover:scale-110 transition-transform flex-shrink-0">
+                    <button onClick={saveEdit} className="p-1 text-success hover:scale-110 transition-transform">
                       <Save className="w-4 h-4" />
                     </button>
-                    <button onClick={() => setEditingId(null)} className="p-1 text-muted-foreground hover:scale-110 transition-transform flex-shrink-0">
+                    <button onClick={() => setEditingId(null)} className="p-1 text-muted-foreground hover:scale-110 transition-transform">
                       <X className="w-4 h-4" />
                     </button>
                   </div>
@@ -121,22 +122,25 @@ export default function Checklist({ activities, selectedDate, onToggle, onAdd, o
                       {a.name}
                     </span>
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          startEdit(a);
-                        }}
-                        className="p-1.5 rounded-md hover:bg-accent transition-all duration-200"
-                      >
+                      {onMove && !isSnapshot && (
+                        <>
+                          <button onClick={() => onMove(a.id, "up")} className="p-1.5 rounded-md hover:bg-accent transition-all duration-200" title="Move up">
+                            <ChevronUp className="w-3.5 h-3.5 text-muted-foreground" />
+                          </button>
+                          <button onClick={() => onMove(a.id, "down")} className="p-1.5 rounded-md hover:bg-accent transition-all duration-200" title="Move down">
+                            <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
+                          </button>
+                        </>
+                      )}
+                      <button onClick={() => startEdit(a)} className="p-1.5 rounded-md hover:bg-accent transition-all duration-200">
                         <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
                       </button>
                       {deletingId === a.id ? (
                         <div className="flex gap-1 animate-scale-in">
-                          <button type="button" onClick={() => confirmDelete(a.id)} className="p-1.5 rounded-md bg-destructive/10 text-destructive hover:bg-destructive/20 transition-all duration-200 text-xs font-medium">
+                          <button onClick={() => confirmDelete(a.id)} className="p-1.5 rounded-md bg-destructive/10 text-destructive hover:bg-destructive/20 transition-all duration-200 text-xs font-medium">
                             Yes
                           </button>
-                          <button type="button" onClick={() => setDeletingId(null)} className="p-1.5 rounded-md hover:bg-accent transition-all duration-200 text-xs text-muted-foreground">
+                          <button onClick={() => setDeletingId(null)} className="p-1.5 rounded-md hover:bg-accent transition-all duration-200 text-xs text-muted-foreground">
                             No
                           </button>
                         </div>

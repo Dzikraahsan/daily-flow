@@ -220,6 +220,10 @@
   display: none !important;
 }
 
+.hide-scrollbar::-webkit-scrollbar {
+  display: none !important;
+}
+
 .no-scrollbar {
   -ms-overflow-style: none !important;  /* IE & Edge */
   scrollbar-width: none !important;     /* Firefox */
