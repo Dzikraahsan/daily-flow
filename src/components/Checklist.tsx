@@ -89,7 +89,7 @@ export default function Checklist({ activities, selectedDate, onToggle, onAdd, o
             return (
               <div
                 key={a.id}
-                className={`flex items-center gap-3 p-3 rounded-lg transition-all duration-300 hover:bg-secondary group
+                className={`flex items-center gap-3 p-3 rounded-lg transition-all duration-300 hover:bg-secondary group min-w-0 overflow-hidden
                   ${isRemoving ? "opacity-0 -translate-x-4 h-0 p-0 m-0 overflow-hidden" : "opacity-100"}`}
               >
                 <button
@@ -118,7 +118,7 @@ export default function Checklist({ activities, selectedDate, onToggle, onAdd, o
                   </div>
                 ) : (
                   <>
-                    <span className={`flex-1 text-sm transition-all duration-300 ${a.completed ? "line-through text-muted-foreground" : "text-card-foreground"}`}>
+                    <span className={`flex-1 min-w-0 text-sm transition-all duration-300 truncate ${a.completed ? "line-through text-muted-foreground" : "text-card-foreground"}`}>
                       {a.name}
                     </span>
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex-shrink-0">
