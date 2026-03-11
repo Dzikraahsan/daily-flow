@@ -101,7 +101,7 @@ export default function Checklist({ activities, selectedDate, onToggle, onAdd, o
                 </button>
 
                 {editingId === a.id ? (
-                  <div className="flex items-center gap-2 flex-1">
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
                     <input
                       value={editName}
                       onChange={(e) => setEditName(e.target.value)}

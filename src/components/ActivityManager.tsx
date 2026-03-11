@@ -100,7 +100,7 @@ export default function ActivityManager({
               className="flex items-center gap-3 p-2.5 rounded-lg transition-all duration-300 hover:bg-secondary group"
             >
               {editingId === a.id ? (
-                <div className="flex items-center gap-2 flex-1">
+                <div className="flex items-center gap-2 flex-1 min-w-0">
                   <input
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
