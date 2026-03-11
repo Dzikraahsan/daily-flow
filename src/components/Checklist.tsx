@@ -69,7 +69,7 @@ export default function Checklist({ activities, selectedDate, onToggle, onAdd, o
         />
         <button
           type="submit"
-          className="flex-shrink-0px-3 py-2 bg-accent text-accent-foreground rounded-lg text-sm font-medium flex items-center gap-1.5 hover:opacity-90 transition-all duration-300 active:scale-95"
+          className="flex-shrink-0 px-3 py-2 bg-accent text-accent-foreground rounded-lg text-sm font-medium flex items-center gap-1.5 hover:opacity-90 transition-all duration-300 active:scale-95"
         >
           <Plus className="w-4 h-4" />
           Add
