@@ -122,7 +122,7 @@ export default function Checklist({ activities, selectedDate, onToggle, onAdd, o
                       {a.name}
                     </span>
                     <div className="flex gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200 flex-shrink-0">
-                      {onMove && !isSnapshot && (
+                      {onMove && (
                         <>
                           <button onClick={() => onMove(a.id, "up")} className="p-1.5 rounded-md hover:bg-accent transition-all duration-200" title="Move up">
                             <ChevronUp className="w-3.5 h-3.5 text-muted-foreground" />

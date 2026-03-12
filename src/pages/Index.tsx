@@ -23,6 +23,7 @@ import {
   editDailyActivity,
   toggleActivityStatus,
   moveActivityInTemplate,
+  moveDailyActivity,
   calculateDailyProgress,
   getLast10DaysProgress,
   formatDate,
@@ -47,6 +48,7 @@ const Index = () => {
   const handleDailyDelete = useCallback((id: number) => setData(deleteDailyActivity(selectedDate, id)), [selectedDate]);
   const handleDailyEdit = useCallback((id: number, name: string) => setData(editDailyActivity(selectedDate, id, name)), [selectedDate]);
   const handleToggle = useCallback((id: number) => setData(toggleActivityStatus(selectedDate, id)), [selectedDate]);
+  const handleDailyMove = useCallback((id: number, direction: "up" | "down") => setData(moveDailyActivity(selectedDate, id, direction)), [selectedDate]);
 
   // Activity Manager handlers (affect weekday template globally)
   const handleTemplateAdd = useCallback((name: string) => setData(addActivityToTemplate(weekday, name)), [weekday]);
@@ -64,7 +66,7 @@ const Index = () => {
             <CheckCircle2 className="w-5 h-5 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-foreground leading-tight">Daily Tracker</h1>
+            <h1 className="text-xl font-bold text-foreground leading-tight">Daily Activity Tracker</h1>
             <p className="text-xs text-muted-foreground">Track your habits, build consistency</p>
           </div>
           <div className="ml-auto">
@@ -96,8 +98,7 @@ const Index = () => {
           onAdd={handleDailyAdd}
           onEdit={handleDailyEdit}
           onDelete={handleDailyDelete}
-          onMove={handleTemplateMove}
-          isSnapshot={isSnapshot}
+          onMove={handleDailyMove}
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

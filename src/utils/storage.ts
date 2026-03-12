@@ -459,7 +459,71 @@ export function editDailyActivity(
   }
   const ov = ensureOverride(data, date);
   const added = ov.added.find((a) => a.id === activityId);
-  if (added) added.name = newName;
+  if (added) {
+    added.name = newName;
+  } else {
+    // Activity is from the weekday template — edit it there
+    const weekday = getWeekdayName(date);
+    const template = data.weekdayTemplates[weekday];
+    if (template) {
+      const item = template.find((a) => a.id === activityId);
+      if (item) item.name = newName;
+    }
+  }
+  saveData(data);
+  return { ...data };
+}
+/** Move activity order for a specific date only */
+export function moveDailyActivity(
+  date: string,
+  activityId: number,
+  direction: "up" | "down",
+): AppData {
+  const data = loadData();
+  if (data.historySnapshots[date]) {
+    // Reorder within the snapshot
+    const acts = data.historySnapshots[date].activities
+      .slice()
+      .sort((a, b) => a.order - b.order);
+    const idx = acts.findIndex((a) => a.id === activityId);
+    if (idx < 0) return data;
+    const swapIdx = direction === "up" ? idx - 1 : idx + 1;
+    if (swapIdx < 0 || swapIdx >= acts.length) return data;
+    // Swap order values in the actual snapshot array
+    const snapActs = data.historySnapshots[date].activities;
+    const item = snapActs.find((a) => a.id === acts[idx].id)!;
+    const swapItem = snapActs.find((a) => a.id === acts[swapIdx].id)!;
+    const tempOrder = item.order;
+    item.order = swapItem.order;
+    swapItem.order = tempOrder;
+    saveData(data);
+    return { ...data };
+  }
+  // Non-snapshot: compute current activities, reorder, then persist order back
+  const activities = computeActivitiesForDate(data, date)
+    .slice()
+    .sort((a, b) => a.order - b.order);
+  const idx = activities.findIndex((a) => a.id === activityId);
+  if (idx < 0) return data;
+  const swapIdx = direction === "up" ? idx - 1 : idx + 1;
+  if (swapIdx < 0 || swapIdx >= activities.length) return data;
+  // Swap order values
+  const tempOrder = activities[idx].order;
+  activities[idx].order = activities[swapIdx].order;
+  activities[swapIdx].order = tempOrder;
+  // Write back order values to their sources
+  const weekday = getWeekdayName(date);
+  const template = data.weekdayTemplates[weekday] || [];
+  const ov = ensureOverride(data, date);
+  for (const act of activities) {
+    const tItem = template.find((t) => t.id === act.id);
+    if (tItem) {
+      tItem.order = act.order;
+    } else {
+      const aItem = ov.added.find((a) => a.id === act.id);
+      if (aItem) aItem.order = act.order;
+    }
+  }
   saveData(data);
   return { ...data };
 }
