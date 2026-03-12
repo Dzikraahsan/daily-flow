@@ -8,6 +8,7 @@ export interface DailyOverride {
   added: { id: number; name: string; order: number }[];
   deleted: number[];
   completed: { [activityId: number]: boolean };
+  orderOverrides: { [activityId: number]: number };
 }
 
 export interface Activity {
@@ -73,14 +74,36 @@ const defaultData: AppData = {
 };
 
 function getOverride(data: AppData, date: string): DailyOverride {
-  return data.dailyOverrides[date] || { added: [], deleted: [], completed: {} };
+  const override = data.dailyOverrides[date];
+  if (!override) {
+    return { added: [], deleted: [], completed: {}, orderOverrides: {} };
+  }
+
+  return {
+    added: override.added || [],
+    deleted: override.deleted || [],
+    completed: override.completed || {},
+    orderOverrides: override.orderOverrides || {},
+  };
 }
 
 function ensureOverride(data: AppData, date: string): DailyOverride {
   if (!data.dailyOverrides[date]) {
-    data.dailyOverrides[date] = { added: [], deleted: [], completed: {} };
+    data.dailyOverrides[date] = {
+      added: [],
+      deleted: [],
+      completed: {},
+      orderOverrides: {},
+    };
   }
-  return data.dailyOverrides[date];
+
+  const override = data.dailyOverrides[date];
+  if (!override.added) override.added = [];
+  if (!override.deleted) override.deleted = [];
+  if (!override.completed) override.completed = {};
+  if (!override.orderOverrides) override.orderOverrides = {};
+
+  return override;
 }
 
 /** Check if a date has a frozen history snapshot */
@@ -121,7 +144,7 @@ function computeActivitiesForDate(data: AppData, date: string): Activity[] {
       id: t.id,
       name: t.name,
       completed: !!override.completed[t.id],
-      order: t.order,
+      order: override.orderOverrides[t.id] ?? t.order,
     }));
 
   // Add daily-added activities (order after template items)
@@ -130,11 +153,11 @@ function computeActivitiesForDate(data: AppData, date: string): Activity[] {
       id: a.id,
       name: a.name,
       completed: !!override.completed[a.id],
-      order: a.order,
+      order: override.orderOverrides[a.id] ?? a.order,
     });
   }
 
-  activities.sort((a, b) => a.order - b.order);
+  activities.sort((a, b) => a.order - b.order || a.id - b.id);
   return activities;
 }
 
@@ -189,12 +212,15 @@ function migrateIfNeeded(parsed: any): AppData {
     // Ensure order field on daily override added items
     for (const date of Object.keys(parsed.dailyOverrides)) {
       const ov = parsed.dailyOverrides[date];
-      if (ov.added) {
-        ov.added = ov.added.map((a: any, i: number) => ({
-          ...a,
-          order: a.order ?? 1000 + i,
-        }));
-      }
+      ov.added = Array.isArray(ov.added)
+        ? ov.added.map((a: any, i: number) => ({
+            ...a,
+            order: a.order ?? 1000 + i,
+          }))
+        : [];
+      ov.deleted = Array.isArray(ov.deleted) ? ov.deleted : [];
+      ov.completed = ov.completed ?? {};
+      ov.orderOverrides = ov.orderOverrides ?? {};
     }
     // Ensure order field on history snapshot activities
     for (const date of Object.keys(parsed.historySnapshots)) {
@@ -232,7 +258,7 @@ function migrateIfNeeded(parsed: any): AppData {
       const template = data.weekdayTemplates[weekday] || [];
       const templateIds = new Set(template.map((t) => t.id));
 
-      const override: DailyOverride = { added: [], deleted: [], completed: {} };
+      const override: DailyOverride = { added: [], deleted: [], completed: {}, orderOverrides: {} };
       const seenIds = new Set<number>();
       for (const a of acts) {
         seenIds.add(a.id);
@@ -296,7 +322,7 @@ function migrateIfNeeded(parsed: any): AppData {
         if (val) completed[Number(id)] = true;
       }
       if (Object.keys(completed).length) {
-        data.dailyOverrides[date] = { added: [], deleted: [], completed };
+        data.dailyOverrides[date] = { added: [], deleted: [], completed, orderOverrides: {} };
       }
     }
     saveData(data);
@@ -338,6 +364,7 @@ export function deleteActivityFromTemplate(
       const ov = data.dailyOverrides[date];
       ov.deleted = ov.deleted.filter((id) => id !== activityId);
       delete ov.completed[activityId];
+      delete ov.orderOverrides[activityId];
     }
   }
   saveData(data);
@@ -409,10 +436,12 @@ export function addDailyActivity(date: string, name: string): AppData {
     return { ...data };
   }
   const ov = ensureOverride(data, date);
-  const weekday = getWeekdayName(date);
-  const templateItems = data.weekdayTemplates[weekday] || [];
-  const maxTemplateOrder = getNextOrder([...templateItems, ...ov.added]);
-  ov.added.push({ id: Date.now(), name, order: maxTemplateOrder });
+  const nextOrder =
+    computeActivitiesForDate(data, date).reduce(
+      (max, activity) => Math.max(max, activity.order),
+      -1,
+    ) + 1;
+  ov.added.push({ id: Date.now(), name, order: nextOrder });
   saveData(data);
   return { ...data };
 }
@@ -438,6 +467,7 @@ export function deleteDailyActivity(date: string, activityId: number): AppData {
     }
   }
   delete ov.completed[activityId];
+  delete ov.orderOverrides[activityId];
   saveData(data);
   return { ...data };
 }
@@ -473,57 +503,66 @@ export function editDailyActivity(
   saveData(data);
   return { ...data };
 }
+
 /** Move activity order for a specific date only */
 export function moveDailyActivity(
   date: string,
   activityId: number,
   direction: "up" | "down",
 ): AppData {
+
   const data = loadData();
+
+  // SNAPSHOT MODE
   if (data.historySnapshots[date]) {
-    // Reorder within the snapshot
-    const acts = data.historySnapshots[date].activities
-      .slice()
-      .sort((a, b) => a.order - b.order);
-    const idx = acts.findIndex((a) => a.id === activityId);
-    if (idx < 0) return data;
-    const swapIdx = direction === "up" ? idx - 1 : idx + 1;
-    if (swapIdx < 0 || swapIdx >= acts.length) return data;
-    // Swap order values in the actual snapshot array
+
     const snapActs = data.historySnapshots[date].activities;
-    const item = snapActs.find((a) => a.id === acts[idx].id)!;
-    const swapItem = snapActs.find((a) => a.id === acts[swapIdx].id)!;
-    const tempOrder = item.order;
-    item.order = swapItem.order;
-    swapItem.order = tempOrder;
+
+    snapActs.sort((a, b) => a.order - b.order || a.id - b.id);
+
+    const idx = snapActs.findIndex((a) => a.id === activityId);
+    if (idx === -1) return data;
+
+    const newIndex = direction === "up" ? idx - 1 : idx + 1;
+
+    if (newIndex < 0 || newIndex >= snapActs.length) return data;
+
+    // move item
+    const [item] = snapActs.splice(idx, 1);
+    snapActs.splice(newIndex, 0, item);
+
+    // rebuild order
+    snapActs.forEach((a, i) => {
+      a.order = i;
+    });
+
     saveData(data);
     return { ...data };
   }
-  // Non-snapshot: compute current activities, reorder, then persist order back
-  const activities = computeActivitiesForDate(data, date)
+
+  // NON SNAPSHOT MODE
+  const activities = getActivitiesForDate(data, date)
     .slice()
-    .sort((a, b) => a.order - b.order);
+    .sort((a, b) => a.order - b.order || a.id - b.id);
+
   const idx = activities.findIndex((a) => a.id === activityId);
-  if (idx < 0) return data;
-  const swapIdx = direction === "up" ? idx - 1 : idx + 1;
-  if (swapIdx < 0 || swapIdx >= activities.length) return data;
-  // Swap order values
-  const tempOrder = activities[idx].order;
-  activities[idx].order = activities[swapIdx].order;
-  activities[swapIdx].order = tempOrder;
-  // Write back order values to their sources
-  const weekday = getWeekdayName(date);
-  const template = data.weekdayTemplates[weekday] || [];
+  if (idx === -1) return data;
+
+  const newIndex = direction === "up" ? idx - 1 : idx + 1;
+
+  if (newIndex < 0 || newIndex >= activities.length) return data;
+
+  // move item
+  const [item] = activities.splice(idx, 1);
+  activities.splice(newIndex, 0, item);
+
   const ov = ensureOverride(data, date);
-  for (const act of activities) {
-    const tItem = template.find((t) => t.id === act.id);
-    if (tItem) {
-      tItem.order = act.order;
-    } else {
-      const aItem = ov.added.find((a) => a.id === act.id);
-      if (aItem) aItem.order = act.order;
-    }
-  }
+
+  // rebuild order override
+  activities.forEach((a, i) => {
+    ov.orderOverrides[a.id] = i;
+  });
+
   saveData(data);
   return { ...data };
 }
