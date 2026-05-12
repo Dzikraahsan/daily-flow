@@ -72,7 +72,10 @@ export default function ActivityManager({
         </span>
       </div>
 
-      <form onSubmit={handleSubmit} className="flex items-center gap-2 mb-4 w-full">
+      <form
+        onSubmit={handleSubmit}
+        className="flex items-center gap-2 mb-4 w-full"
+      >
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -93,7 +96,7 @@ export default function ActivityManager({
           No activities in the {weekday} template yet.
         </p>
       ) : (
-        <div className="max-h-[250px] overflow-y-auto hide-scrollbar no-scrollbar space-y-1.5 pr-1">
+        <div className="max-h-[400px] overflow-y-auto hide-scrollbar no-scrollbar space-y-1.5 pr-1">
           {template.map((a) => (
             <div
               key={a.id}
