@@ -11,25 +11,40 @@ export default function HistoryTable({ activities, selectedDate }: Props) {
     <div className="card-container animate-fade-in">
       <div className="flex items-center gap-2 mb-4">
         <ClipboardList className="w-5 h-5 text-primary" />
-        <h2 className="text-lg font-semibold text-card-foreground">Daily History</h2>
-        <span className="ml-auto text-xs font-semibold text-muted-foreground">{selectedDate}</span>
+        <h2 className="text-lg font-semibold text-card-foreground">
+          Daily History
+        </h2>
+        <span className="ml-auto text-xs font-semibold text-muted-foreground">
+          {selectedDate}
+        </span>
       </div>
 
       {activities.length === 0 ? (
-        <p className="text-sm text-muted-foreground text-center py-6">No activities to display.</p>
+        <p className="text-sm text-muted-foreground text-center py-6">
+          No activities to display.
+        </p>
       ) : (
-        <div className="max-h-[330px] overflow-y-auto no-scrollbar">
+        <div className="max-h-[450px] overflow-y-auto no-scrollbar">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border">
-                <th className="text-left py-2 px-3 text-muted-foreground font-medium">Activity</th>
-                <th className="text-center py-2 px-3 text-muted-foreground font-medium">Status</th>
-                <th className="text-right py-2 px-3 text-muted-foreground font-medium">Date</th>
+                <th className="text-left py-2 px-3 text-muted-foreground font-medium">
+                  Activity
+                </th>
+                <th className="text-center py-2 px-3 text-muted-foreground font-medium">
+                  Status
+                </th>
+                <th className="text-right py-2 px-3 text-muted-foreground font-medium">
+                  Date
+                </th>
               </tr>
             </thead>
             <tbody>
               {activities.map((a) => (
-                <tr key={a.id} className="border-b border-border/50 transition-all duration-200 hover:bg-secondary/60 text-xs">
+                <tr
+                  key={a.id}
+                  className="border-b border-border/50 transition-all duration-200 hover:bg-secondary/60 text-xs"
+                >
                   <td className="py-2.5 px-3 text-card-foreground">{a.name}</td>
                   <td className="py-2.5 px-3 text-center">
                     <span
@@ -39,7 +54,9 @@ export default function HistoryTable({ activities, selectedDate }: Props) {
                       {a.completed ? "Done" : "Pending"}
                     </span>
                   </td>
-                  <td className="py-2.5 px-3 text-right text-muted-foreground text-xs">{selectedDate}</td>
+                  <td className="py-2.5 px-3 text-right text-muted-foreground text-xs">
+                    {selectedDate}
+                  </td>
                 </tr>
               ))}
             </tbody>
