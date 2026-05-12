@@ -48,13 +48,13 @@ export default function HistoryTable({ activities, selectedDate }: Props) {
                   <td className="py-2.5 px-3 text-card-foreground">{a.name}</td>
                   <td className="py-2.5 px-3 text-center">
                     <span
-                      className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-medium transition-all duration-300
+                      className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-medium transition-all duration-300
                         ${a.completed ? "bg-success/15 text-success" : "bg-muted text-muted-foreground"}`}
                     >
                       {a.completed ? "Done" : "Pending"}
                     </span>
                   </td>
-                  <td className="py-2.5 px-3 text-right text-muted-foreground text-[11px]">
+                  <td className="py-2.5 px-3 text-right text-muted-foreground text-[10px]">
                     {selectedDate}
                   </td>
                 </tr>
