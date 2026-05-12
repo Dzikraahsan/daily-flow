@@ -25,16 +25,16 @@ export default function HistoryTable({ activities, selectedDate }: Props) {
         </p>
       ) : (
         <div className="max-h-[450px] overflow-y-auto no-scrollbar">
-          <table className="w-full text-sm">
+          <table className="w-full text-[12px]">
             <thead>
               <tr className="border-b border-border">
-                <th className="text-left py-2 px-3 text-muted-foreground font-medium">
+                <th className="text-left text-[12px] py-2 px-3 text-muted-foreground font-medium">
                   Activity
                 </th>
-                <th className="text-center py-2 px-3 text-muted-foreground font-medium">
+                <th className="text-center text-[12px] py-2 px-3 text-muted-foreground font-medium">
                   Status
                 </th>
-                <th className="text-right py-2 px-3 text-muted-foreground font-medium">
+                <th className="text-right text-[12px] py-2 px-3 text-muted-foreground font-medium">
                   Date
                 </th>
               </tr>
@@ -43,18 +43,18 @@ export default function HistoryTable({ activities, selectedDate }: Props) {
               {activities.map((a) => (
                 <tr
                   key={a.id}
-                  className="border-b border-border/50 transition-all duration-200 hover:bg-secondary/60 text-xs"
+                  className="border-b border-border/50 transition-all duration-200 hover:bg-secondary/60 text-[10px]"
                 >
                   <td className="py-2.5 px-3 text-card-foreground">{a.name}</td>
                   <td className="py-2.5 px-3 text-center">
                     <span
-                      className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium transition-all duration-300
+                      className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-medium transition-all duration-300
                         ${a.completed ? "bg-success/15 text-success" : "bg-muted text-muted-foreground"}`}
                     >
                       {a.completed ? "Done" : "Pending"}
                     </span>
                   </td>
-                  <td className="py-2.5 px-3 text-right text-muted-foreground text-xs">
+                  <td className="py-2.5 px-3 text-right text-muted-foreground text-[11px]">
                     {selectedDate}
                   </td>
                 </tr>
