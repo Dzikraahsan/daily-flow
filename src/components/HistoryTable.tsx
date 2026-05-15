@@ -24,7 +24,7 @@ export default function HistoryTable({ activities, selectedDate }: Props) {
           No activities to display.
         </p>
       ) : (
-        <div className="max-h-[450px] overflow-y-auto no-scrollbar">
+        <div className="max-h-[600px] overflow-y-auto no-scrollbar">
           <table className="w-full text-[12px]">
             <thead>
               <tr className="border-b border-border">
