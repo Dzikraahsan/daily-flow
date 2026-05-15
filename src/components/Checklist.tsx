@@ -109,7 +109,7 @@ export default function Checklist({
           </p>
         </div>
       ) : (
-        <div className="max-h-[400px] overflow-y-auto no-scrollbar space-y-2 pr-1 will-change-transform">
+        <div className="max-h-[600px] overflow-y-auto no-scrollbar space-y-2 pr-1 will-change-transform">
           {[...activities].map((a) => {
             const isRemoving = removedIds.has(a.id);
             return (
